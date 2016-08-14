@@ -1,2 +1,2 @@
 # chrome-app-note
-Study chrome apps
+The note app for chrome app
