@@ -2,13 +2,38 @@
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
-    <title>SimpleEditor</title>
-    <script src="common.js"></script>
-    <script src="indexdb-test.js"></script>
-    <!--<script src="storage_test.js"></script>-->
+    <title>IndexedDB</title>
+    <script src="lib/Dialogs.js"></script>
+    <script src="lib/common.js"></script>
+    <script src="IndexedDB.js"></script>
 </head>
 <body>
-IndexDB test
+<label for="search">Last:</label>
+<input type="text" id="search-key">
+<button id="search">Search</button>
+<hr>
+<button id="prev">Prev</button>
+<button id="next">Next</button>
+<button id="clear" style='margin-left: 40px;'>Clear</button>
+<button id="delete">Delete</button>
+<button id="save">Save</button>
+<p>
+    First Name: <input type="text" id="field-first">
+    Last Name: <input type="text" id="field-last">
+<p>
+    Street: <input type="text" id="field-street" size="30">
+<p>
+    City: <input type="text" id="field-city">,
+    State: <input type="text" id="field-state">
+    Zip: <input type="text" id="field-zip" size="5">
+<p>
+    Email: <input type="text" id="field-email" size="50">
+    <input type="hidden" id="field-primaryKey">
+<hr>
+<button id="delete_db">Delete Database</button>
+<button id="import">Import...</button>
+<button id="export">Export...</button>
+<button id="count">Count</button>
 <p id="message">&nbsp;</p>
 </body>
 </html>
