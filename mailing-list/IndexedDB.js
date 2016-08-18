@@ -204,10 +204,12 @@ window.onload = function () {
     }
 
     function fillForm(object, primaryKey) {
-        if (!object)
+        if (!object) {
             object = {};
-        if (!primaryKey)
+        }
+        if (!primaryKey) {
             primaryKey = 0;
+        }
         document.querySelector("#field-last").value = val(object.last);
         document.querySelector("#field-first").value = val(object.first);
         document.querySelector("#field-street").value = val(object.street);
