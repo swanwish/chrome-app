@@ -30,6 +30,7 @@ window.onload = function () {
         document.querySelector("#prev").addEventListener("click", showPrev);
         document.querySelector("#delete_db").addEventListener("click", deleteDatabase);
         document.querySelector("#import").addEventListener("click", importData);
+        document.querySelector("#export").addEventListener("click", exportData);
     }
 
     function clearForm() {
@@ -137,6 +138,57 @@ window.onload = function () {
                 }
             }
         );
+    }
+
+    function exportData() {
+        chrome.fileSystem.chooseEntry(
+            {
+                type: 'saveFile'
+            },
+            function (entry) {
+                if (entry) {
+                    saveToEntry(entry);
+                }
+            });
+    }
+
+    function saveToEntry(entry) {
+        entry.createWriter(
+            function (fileWriter) {
+                fileWriter.onerror = errorHandler;
+                fileWriter.onwrite = function () {
+                    writeData(fileWriter);
+                };
+                fileWriter.truncate(0);
+            },
+            errorHandler
+        );
+    }
+
+    function writeData(fileWriter) {
+        var objects = [];
+        db
+            .transaction("mailing-list")
+            .objectStore("mailing-list")
+            .openCursor()
+            .onsuccess = function (event) {
+            var cursor = event.target.result;
+            if (cursor) {
+                objects.push(cursor.value);
+                cursor.continue();
+            }
+            else {
+                writeObjects(fileWriter, objects);
+            }
+        };
+    }
+
+    function writeObjects(fileWriter, objects) {
+        fileWriter.onwrite = function () {
+            showMessage(objects.length + ' objects exported', true);
+        };
+        fileWriter.onerror = errorHandler;
+        fileWriter.write(new Blob([JSON.stringify(objects)]));
     }
 
     function getForm() {
