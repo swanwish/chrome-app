@@ -21,78 +21,122 @@ window.onload = function () {
     }
 
     function bindEvents() {
-        document.querySelector("#clear").addEventListener("click",
+        document.querySelector("#clear").addEventListener("click", clearForm);
+        document.querySelector("#save").addEventListener("click", saveRecord);
+        document.querySelector("#delete").addEventListener("click", deleteRecord);
+        document.querySelector("#count").addEventListener("click", countRecords);
+        document.querySelector("#search").addEventListener("click", searchRecords);
+        document.querySelector("#next").addEventListener("click", showNext);
+        document.querySelector("#prev").addEventListener("click", showPrev);
+        document.querySelector("#delete_db").addEventListener("click", deleteDatabase);
+        document.querySelector("#import").addEventListener("click", importData);
+    }
+
+    function clearForm() {
+        fillForm();
+    }
+
+    function saveRecord() {
+        var store = db
+            .transaction("mailing-list", "readwrite")
+            .objectStore("mailing-list");
+        var object = getForm();
+        var key = document.querySelector("#field-primaryKey").value;
+        var primaryKey = key ? parseInt(key) : 0;
+        if (primaryKey === 0) {
+            store
+                .add(object)
+                .onsuccess = function (event) {
+                showMessage('Added', true);
+            };
+        } else {
+            store
+                .put(object, primaryKey)
+                .onsuccess = function (event) {
+                showMessage('Updated', true);
+            };
+        }
+    }
+
+    function deleteRecord() {
+        var primaryKey =
+            parseInt(document.querySelector("#field-primaryKey").value);
+        if (primaryKey > 0) {
+            db
+                .transaction("mailing-list", "readwrite")
+                .objectStore("mailing-list")
+                .delete(primaryKey)
+                .onsuccess = function (event) {
+                fillForm();
+                showMessage('Deleted', true);
+            };
+        }
+    }
+
+    function countRecords() {
+        db.transaction("mailing-list")
+            .objectStore("mailing-list")
+            .count()
+            .onsuccess = function (event) {
+            Dialogs.alert(event.target.result + ' objects in database');
+        };
+    }
+
+    function searchRecords() {
+        fillForm();
+        search(document.querySelector("#search-key").value, "next", 0);
+    }
+
+    function showNext() {
+        search(document.querySelector("#field-last").value, "next",
+            document.querySelector("#field-primaryKey").value);
+    }
+
+    function showPrev() {
+        search(document.querySelector("#field-last").value, "prev",
+            document.querySelector("#field-primaryKey").value);
+    }
+
+    function deleteDatabase() {
+        console.log('d');
+        Dialogs.confirm('Delete entire database?', 'Delete', 'Cancel',
             function () {
                 fillForm();
-            }
-        );
-        document.querySelector("#save").addEventListener("click",
-            function () {
-                var store = db
-                    .transaction("mailing-list", "readwrite")
-                    .objectStore("mailing-list");
-                var object = getForm();
-                var key = document.querySelector("#field-primaryKey").value;
-                var primaryKey = key ? parseInt(key) : 0;
-                if (primaryKey === 0) {
-                    store
-                        .add(object)
-                        .onsuccess = function (event) {
-                        showMessage('Added', true);
-                    };
-                } else {
-                    store
-                        .put(object, primaryKey)
-                        .onsuccess = function (event) {
-                        showMessage('Updated', true);
-                    };
+                if (db) {
+                    db.close();
+                    db = null;
                 }
-            });
-        document.querySelector("#delete").addEventListener("click",
-            function () {
-                var primaryKey =
-                    parseInt(document.querySelector("#field-primaryKey").value);
-                if (primaryKey > 0) {
-                    db
-                        .transaction("mailing-list", "readwrite")
-                        .objectStore("mailing-list")
-                        .delete(primaryKey)
-                        .onsuccess = function (event) {
-                        fillForm();
-                        showMessage('Deleted', true);
-                    };
-                }
-            }
-        );
-
-        document.querySelector("#count").addEventListener("click",
-            function () {
-                db.transaction("mailing-list")
-                    .objectStore("mailing-list")
-                    .count()
-                    .onsuccess = function (event) {
-                    Dialogs.alert(event.target.result + ' objects in database');
+                var request = indexedDB.deleteDatabase("db1");
+                request.onsuccess = function () {
+                    openDatabase();
                 };
-            });
-
-        document.querySelector("#search").addEventListener("click",
-            function () {
-                fillForm();
-                search(document.querySelector("#search-key").value, "next", 0);
+                request.onerror = errorHandler;
             }
         );
+    }
 
-        document.querySelector("#next").addEventListener("click",
-            function () {
-                search(document.querySelector("#field-last").value, "next",
-                    document.querySelector("#field-primaryKey").value);
-            });
-
-        document.querySelector("#prev").addEventListener("click",
-            function () {
-                search(document.querySelector("#field-last").value, "prev",
-                    document.querySelector("#field-primaryKey").value);
-            });
+    function importData() {
+        chrome.fileSystem.chooseEntry(
+            {
+                type: 'openFile'
+            },
+            function (entry) {
+                if (entry) {
+                    entry.file(
+                        function (file) {
+                            var reader = new FileReader();
+                            reader.onloadend = function () {
+                                var objects = JSON.parse(this.result);
+                                loadData(objects);
+                                showMessage('Opened OK', true);
+                            };
+                            reader.readAsText(file);
+                        },
+                        errorHandler
+                    );
+                }
+            }
+        );
     }
 
     function getForm() {
@@ -149,8 +193,20 @@ window.onload = function () {
                     showMessage('');
                     fillForm(cursor.value, cursor.primaryKey);
                 }
-            } else
+            } else {
                 showMessage('Not found');
+            }
         };
     }
+
+    function loadData(objects) {
+        var transaction = db.transaction("mailing-list", "readwrite");
+        transaction.oncomplete = function (event) {
+            showMessage(objects.length + ' objects imported', true);
+        };
+        var store = transaction.objectStore("mailing-list");
+        for (var x of objects)
+            store.add(x);
+    }
+
 };

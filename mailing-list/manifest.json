@@ -10,6 +10,13 @@
   "name": "Mailing List",
   "version": "1.0.0",
   "permissions": [
-    "storage"
+    "storage",
+    {
+      "fileSystem": [
+        "directory",
+        "write",
+        "retainEntries"
+      ]
+    }
   ]
 }
