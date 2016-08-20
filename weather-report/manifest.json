@@ -13,5 +13,8 @@
     "tcp": {
       "connect": "api.openweathermap.org:80"
     }
-  }
+  },
+  "permissions": [
+    "<all_urls>"
+  ]
 }

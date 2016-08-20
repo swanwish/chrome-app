@@ -1,29 +1,50 @@
-api_key = "";
+api_key = "70d6b1551aff945c5c0c8f5e084d3852";
 window.onload = function () {
-    var skt = new Socket.HttpRequest();
+    // var skt = new Socket.HttpRequest();
+    // skt = new XMLHttpRequest(); // use the new request
     document.querySelector("#get").addEventListener("click",
         function () {
             getWeather(document.querySelector("#city").value);
         }
     );
 
+    // function getWeather(city) {
+    //     var textarea = document.querySelector("#textarea");
+    //     textarea.value = "Wait...";
+    //     skt.onload = function () {
+    //         if (skt.status === 200) {
+    //             var obj = JSON.parse(skt.response);
+    //             // showMessage(obj.message, true);
+    //             textarea.value = formatWeather(obj);
+    //         } else
+    //             showMessage("Error: " + skt.status);
+    //     };
+    //     skt.onerror = function (msg) {
+    //         showMessage(msg);
+    //     };
+    //     skt.open("get", "http://api.openweathermap.org/data/2.5/weather" +
+    //         "?units=metric&q=" + city + "&APPID=" + api_key);
+    //     skt.send();
+    // }
+
     function getWeather(city) {
         var textarea = document.querySelector("#textarea");
         textarea.value = "Wait...";
-        skt.onload = function () {
-            if (skt.status === 200) {
-                var obj = JSON.parse(skt.response);
-                // showMessage(obj.message, true);
-                textarea.value = formatWeather(obj);
-            } else
-                showMessage("Error: " + skt.status);
-        };
-        skt.onerror = function (msg) {
-            showMessage(msg);
-        };
-        skt.open("get", "http://api.openweathermap.org/data/2.5/weather" +
-            "?units=metric&q=" + city + "&APPID=" + api_key);
-        skt.send();
+        Ajax.ajaxSend("http://api.openweathermap.org/data/2.5/weather" +
+            "?units=metric&q=" + city + "&APPID=" + api_key, "json",
+            function (status, obj) {
+                if (status === 200) {
+                    showMessage(obj.message, true);
+                    textarea.value = formatWeather(obj);
+                }
+                else
+                    showMessage("Error: " + status);
+            },
+            function (e) {
+                showMessage("Communication error");
+                console.log('Communication error:', e);
+            }
+        );
     }
 
     function formatWeather(value) {
@@ -33,7 +54,7 @@ window.onload = function () {
         } else {
             list = value.list;
         }
-            // return "No cities found";
+        // return "No cities found";
         var s = "";
         for (var x of list) {
             s += x.name;
