@@ -7,15 +7,10 @@
     }
   },
   "manifest_version": 2,
-  "name": "Weather Report",
+  "name": "Facebook Photos",
   "version": "1.0.0",
-  "sockets": {
-    "tcp": {
-      "connect": "api.openweathermap.org:80"
-    }
-  },
   "permissions": [
-    "notifications",
+    "identity",
     "<all_urls>"
   ]
 }

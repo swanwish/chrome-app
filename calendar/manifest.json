@@ -7,15 +7,14 @@
     }
   },
   "manifest_version": 2,
-  "name": "Weather Report",
+  "name": "Calendar",
   "version": "1.0.0",
-  "sockets": {
-    "tcp": {
-      "connect": "api.openweathermap.org:80"
-    }
-  },
   "permissions": [
-    "notifications",
-    "<all_urls>"
+    {
+      "fileSystem": [
+        "write"
+      ]
+    },
+    "webview"
   ]
 }

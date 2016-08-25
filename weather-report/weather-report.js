@@ -36,9 +36,12 @@ window.onload = function () {
                 if (status === 200) {
                     showMessage(obj.message, true);
                     textarea.value = formatWeather(obj);
+                    showNotification('weather.png', 'Notification', 'Success');
                 }
-                else
+                else {
                     showMessage("Error: " + status);
+                    showNotification('weather.png', 'Notification', 'Failed');
+                }
             },
             function (e) {
                 showMessage("Communication error");
@@ -76,5 +79,16 @@ window.onload = function () {
             s += "----------------------\n";
         }
         return s;
+    }
+
+    function showNotification(icon, title, message) {
+        chrome.notifications.create('', {
+            type: 'basic',
+            iconUrl: icon,
+            title: title,
+            message: message
+        }, function (notificationID) {
+            console.log(notificationID);
+        })
     }
 };
